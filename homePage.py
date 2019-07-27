@@ -47,18 +47,28 @@ def fill_info():
             break
         else:
             print('输入有误，密码不能超过8位')
-    try:
-        with con.cursor() as cursor:
-            result = cursor.execute(
-                'insert into tb_user values (%s, %s, %s)',
-                (uname, pword, datetime.datetime.now())
-            )
-            if result == 1:
-                print('注册成功')
-        con.commit()
-    except pymysql.MySQLError:
-        print('该用户名已注册')
-        con.rollback()
+    with con.cursor(cursor=pymysql.cursors.DictCursor) as cursor:
+        result = cursor.execute(
+            'select uname as uname from tb_user'
+        )
+        flag = False
+        for row in cursor.fetchall():
+            if row['uname'] == uname:
+                flag = True
+                print('该用户名已经注册')
+        if not flag:
+            try:
+                with con.cursor() as cursor1:
+                    result2 = cursor1.execute(
+                        'insert into tb_user values (%s, %s, %s)',
+                        (uname, pword, datetime.datetime.now())
+                    )
+                    if result2 == 1:
+                        print('注册成功')
+                con.commit()
+            except pymysql.MySQLError as err:
+                print(err)
+                con.rollback()
 
 
 def register():

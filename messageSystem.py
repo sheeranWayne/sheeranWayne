@@ -1,7 +1,5 @@
 import pymysql
 
-import datetime
-
 import homePage
 
 current_uname = ''
