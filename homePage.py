@@ -11,6 +11,7 @@ con = pymysql.connect(host="39.106.49.30", user="root",
 
 
 def login():
+    """登录"""
     while True:
         uname = input('请输入用户名：')
         pword = input('请输入密码：')
@@ -33,6 +34,7 @@ def login():
 
 
 def fill_info():
+    """填写注册信息"""
     while True:
         uname = input('请输入用户名(不超过10位)：')
         if 0 <= len(uname) <= 10:
@@ -68,6 +70,7 @@ def register():
 
 
 def show_home_page():
+    """主页"""
     while True:
         value = input('1.登录\n2.注册\n3.退出\n请选择：')
         if value == '1':

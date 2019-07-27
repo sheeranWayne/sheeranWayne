@@ -12,6 +12,7 @@ con = pymysql.connect(host="39.106.49.30", user="root",
 
 
 def send_mes():
+    """发送信息"""
     titles = input('请输入短信标题：')
     contents = input('请输入短信内容：')
     receiver = input('请输入需要发送的人：')
@@ -47,6 +48,7 @@ def send_mes():
 
 
 def read_mes():
+    """显示账户所有未读信息"""
     with con.cursor(cursor=pymysql.cursors.DictCursor) as cursor:
         result2 = cursor.execute(
             'select sno as sno, sender as sender,'
@@ -62,6 +64,7 @@ def read_mes():
 
 
 def find_mes():
+    """显示账户所有信息"""
     with con.cursor(cursor=pymysql.cursors.DictCursor) as cursor:
         result2 = cursor.execute(
             'select sno as sno, sender as sender,'
@@ -88,6 +91,7 @@ def read_check():
 
 
 def read_sno():
+    """按短信编号查看未读信息"""
     read_mes()
     sno = int(input('请输入要查看的短信编号：'))
     with con.cursor(cursor=pymysql.cursors.DictCursor) as cursor:
@@ -95,23 +99,29 @@ def read_sno():
             'select sno as sno, sender as sender, title as title, '
             'content as content from tb_sms where sno=%s and sread=0 and uname=%s' % (sno, current_uname)
         )
-        print('编号', '发送者', '标题', '  内容', sep='\t')
+        flag = False
         for row in cursor.fetchall():
-            print(row['sno'], row['sender'], row['title'], row['content'], sep='\t\t')
-        try:
-            with con.cursor() as cursor1:
-                result2 = cursor1.execute(
-                    'update tb_sms set sread=1 where sno=%s' % sno
-                    )
-                if result2 > 0:
-                    pass
-            con.commit()
-        except pymysql.MySQLError as err:
-            print(err)
-            con.rollback()
+            if row['sno'] == sno:
+                flag = True
+                print('编号', '发送者', '标题', '  内容', sep='\t')
+                print(row['sno'], row['sender'], row['title'], row['content'], sep='\t\t')
+            try:
+                with con.cursor() as cursor1:
+                    result2 = cursor1.execute(
+                        'update tb_sms set sread=1 where sno=%s' % sno
+                        )
+                    if result2 > 0:
+                        pass
+                con.commit()
+            except pymysql.MySQLError as err:
+                print(err)
+                con.rollback()
+        if not flag:
+            print('输入错误')
 
 
 def read_sender():
+    """按发送者查看未读信息"""
     read_mes()
     sender = input('请输入要查看的发送者：')
     with con.cursor(cursor=pymysql.cursors.DictCursor) as cursor:
@@ -120,20 +130,24 @@ def read_sender():
             'content as content from tb_sms where sender=%s and sread=0 and uname=%s and sremove=1' %
             (sender, current_uname)
         )
-        print('编号', '发送者', '标题', '  内容', sep='\t')
+        flag = False
         for row in cursor.fetchall():
-            print(row['sno'], row['sender'], row['title'], row['content'], sep='\t\t')
-        try:
-            with con.cursor() as cursor1:
-                result2 = cursor1.execute(
-                    'update tb_sms set sread=1 where sender=%s and sremove=1' % sender
-                )
-                if result2 > 0:
-                    pass
-            con.commit()
-        except pymysql.MySQLError as err:
-            print(err)
-            con.rollback()
+            if row['sender'] == sender:
+                flag = True
+                print(row['sno'], row['sender'], row['title'], row['content'], sep='\t\t')
+            try:
+                with con.cursor() as cursor1:
+                    result2 = cursor1.execute(
+                        'update tb_sms set sread=1 where sender=%s and sremove=1' % sender
+                    )
+                    if result2 > 0:
+                        pass
+                con.commit()
+            except pymysql.MySQLError as err:
+                print(err)
+                con.rollback()
+        if not flag:
+            print('输入有误')
 
 
 def sign_read():
@@ -148,6 +162,7 @@ def sign_read():
 
 
 def sign_read_sno():
+    """按短信编号标记已读信息"""
     read_mes()
     sno = int(input('请输入要标记的短信编号：'))
     try:
@@ -165,6 +180,7 @@ def sign_read_sno():
 
 
 def sign_read_all():
+    """标记全部已读信息"""
     read_mes()
     try:
         with con.cursor() as cursor:
@@ -192,6 +208,7 @@ def check_message():
 
 
 def find_read_check_sno():
+    """按短信编号查看信息"""
     find_mes()
     sno = int(input('请输入要查看的短信编号：'))
     with con.cursor(cursor=pymysql.cursors.DictCursor) as cursor:
@@ -217,6 +234,7 @@ def find_read_check_sno():
 
 
 def find_read_check_sender():
+    """按发送者查看信息"""
     find_mes()
     sender = input('请输入要查看的发送者：')
     with con.cursor(cursor=pymysql.cursors.DictCursor) as cursor:
@@ -253,6 +271,7 @@ def find_read_check():
 
 
 def dele_mes_sno():
+    """按短信编号删除信息"""
     find_mes()
     sno = int(input('请输入要删除的短信编号：'))
     with con.cursor(cursor=pymysql.cursors.DictCursor) as cursor:
@@ -287,6 +306,7 @@ def dele_mes_sno():
 
 
 def dele_mes_sender():
+    """按发送者删除信息"""
     find_mes()
     sender = input('请输入要删除的发送者：')
     with con.cursor(cursor=pymysql.cursors.DictCursor) as cursor:
@@ -341,6 +361,7 @@ def find_all():
 
 
 def clean_mess():
+    """清除所有信息"""
     find_mes()
     value = input('确认是否删除：\n1.删除\n2.取消')
     if value == '1':
